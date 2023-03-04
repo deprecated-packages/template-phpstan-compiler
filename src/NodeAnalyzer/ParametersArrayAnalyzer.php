@@ -7,15 +7,10 @@ namespace Symplify\TemplatePHPStanCompiler\NodeAnalyzer;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PHPStan\Analyser\Scope;
-use Symplify\Astral\NodeValue\NodeValueResolver;
+use PHPStan\Type\Constant\ConstantStringType;
 
 final class ParametersArrayAnalyzer
 {
-    public function __construct(
-        private NodeValueResolver $nodeValueResolver
-    ) {
-    }
-
     /**
      * @return string[]
      */
@@ -32,12 +27,12 @@ final class ParametersArrayAnalyzer
                 continue;
             }
 
-            $keyValue = $this->nodeValueResolver->resolve($arrayItem->key, $scope->getFile());
-            if (! is_string($keyValue)) {
+            $keyType = $scope->getType($arrayItem->key);
+            if (! $keyType instanceof ConstantStringType) {
                 continue;
             }
 
-            $stringKeyNames[] = $keyValue;
+            $stringKeyNames[] = $keyType->getValue();
         }
 
         return $stringKeyNames;

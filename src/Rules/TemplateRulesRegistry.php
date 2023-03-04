@@ -6,23 +6,23 @@ namespace Symplify\TemplatePHPStanCompiler\Rules;
 
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
+use PHPStan\Rules\DirectRegistry;
 use PHPStan\Rules\FunctionCallParametersCheck;
 use PHPStan\Rules\Methods\CallMethodsRule;
-use PHPStan\Rules\Registry;
 use PHPStan\Rules\Rule;
-use Symplify\PHPStanRules\Rules\ForbiddenFuncCallRule;
-use Symplify\PHPStanRules\Rules\NoDynamicNameRule;
-use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
 
 /**
  * @api
  */
-final class TemplateRulesRegistry extends Registry
+final class TemplateRulesRegistry extends DirectRegistry
 {
     /**
-     * @var array<class-string<DocumentedRuleInterface>>
+     * @var string[]
      */
-    private const EXCLUDED_RULES = [ForbiddenFuncCallRule::class, NoDynamicNameRule::class];
+    private const EXCLUDED_RULES = [
+        'Symplify\PHPStanRules\Rules\ForbiddenFuncCallRule',
+        'Symplify\PHPStanRules\Rules\NoDynamicNameRule',
+    ];
 
     /**
      * @param array<Rule<Node>> $rules
@@ -51,13 +51,12 @@ final class TemplateRulesRegistry extends Registry
                     continue;
                 }
 
-                /** @var CallMethodsRule $activeRule */
                 /** @var FunctionCallParametersCheck $check */
-                $check = $privatesAccessor->getPrivatePropertyOfClass(
+                $check = $privatesAccessor->getPrivateProperty(
                     $activeRule,
-                    'parametersCheck',
-                    FunctionCallParametersCheck::class
+                    'parametersCheck'
                 );
+
                 $privatesAccessor->setPrivateProperty($check, 'checkArgumentTypes', true);
             }
         }
