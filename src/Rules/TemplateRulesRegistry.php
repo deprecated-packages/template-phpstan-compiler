@@ -10,7 +10,6 @@ use PHPStan\Rules\FunctionCallParametersCheck;
 use PHPStan\Rules\Methods\CallMethodsRule;
 use PHPStan\Rules\Registry;
 use PHPStan\Rules\Rule;
-use Symplify\PackageBuilder\Reflection\PrivatesAccessor;
 use Symplify\PHPStanRules\Rules\ForbiddenFuncCallRule;
 use Symplify\PHPStanRules\Rules\NoDynamicNameRule;
 use Symplify\RuleDocGenerator\Contract\DocumentedRuleInterface;
@@ -45,7 +44,7 @@ final class TemplateRulesRegistry extends Registry
 
         // only fix in a weird test case setup
         if (defined('PHPUNIT_COMPOSER_INSTALL') && $nodeType === MethodCall::class) {
-            $privatesAccessor = new PrivatesAccessor();
+            $privatesAccessor = new \Symplify\TemplatePHPStanCompiler\Reflection\PrivatesAccessor();
 
             foreach ($activeRules as $activeRule) {
                 if (! $activeRule instanceof CallMethodsRule) {
