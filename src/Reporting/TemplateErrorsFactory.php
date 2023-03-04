@@ -29,8 +29,7 @@ final class TemplateErrorsFactory
 
         $phpToTemplateLines = $phpFileContentsWithLineMap->getPhpToTemplateLines();
 
-        $templateFileInfo = new \SplFileInfo($resolvedTemplateFilePath);
-        $realPath = $templateFileInfo->getRealPath();
+        $realPath = realpath($resolvedTemplateFilePath);
 
         foreach ($errors as $error) {
             // correct error PHP line number to Latte line number
