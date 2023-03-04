@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Symplify\TemplatePHPStanCompiler;
 
-use Nette\Utils\Strings;
 use PHPStan\Analyser\Error;
 
 /**
- * @api
  * @see \Symplify\TemplatePHPStanCompiler\Tests\ErrorSkipperTest
  */
 final class ErrorSkipper
@@ -24,7 +22,8 @@ final class ErrorSkipper
 
         foreach ($errors as $error) {
             foreach ($errorIgnores as $errorIgnore) {
-                if (Strings::match($error->getMessage(), $errorIgnore)) {
+                $result = preg_match($errorIgnore, $error->getMessage(), $matches);
+                if ($result !== false) {
                     continue 2;
                 }
             }

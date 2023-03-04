@@ -7,7 +7,6 @@ namespace Symplify\TemplatePHPStanCompiler\Reporting;
 use PHPStan\Analyser\Error;
 use PHPStan\Rules\RuleError;
 use PHPStan\Rules\RuleErrorBuilder;
-use Symplify\SmartFileSystem\SmartFileInfo;
 use Symplify\TemplatePHPStanCompiler\ValueObject\PhpFileContentsWithLineMap;
 
 /**
@@ -30,7 +29,7 @@ final class TemplateErrorsFactory
 
         $phpToTemplateLines = $phpFileContentsWithLineMap->getPhpToTemplateLines();
 
-        $templateFileInfo = new SmartFileInfo($resolvedTemplateFilePath);
+        $templateFileInfo = new \SplFileInfo($resolvedTemplateFilePath);
         $realPath = $templateFileInfo->getRealPath();
 
         foreach ($errors as $error) {

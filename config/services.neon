@@ -9,7 +9,6 @@ services:
 
     - Symplify\TemplatePHPStanCompiler\TypeAnalyzer\TemplateVariableTypesResolver
 
-    - Symplify\TemplatePHPStanCompiler\PhpParser\ParentNodeAwarePhpParser
     - Symplify\TemplatePHPStanCompiler\Reporting\TemplateErrorsFactory
 
     - Symplify\TemplatePHPStanCompiler\ErrorSkipper

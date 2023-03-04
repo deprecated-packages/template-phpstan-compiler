@@ -6,25 +6,24 @@ namespace Symplify\TemplatePHPStanCompiler\NodeAnalyzer;
 
 use PhpParser\Node\Expr;
 use PHPStan\Analyser\Scope;
+use PHPStan\Type\Constant\ConstantStringType;
 use Symfony\Component\Finder\Finder;
-use Symplify\Astral\NodeValue\NodeValueResolver;
 
-/**
- * @api
- */
 final class TemplateFilePathResolver
 {
-    public function __construct(
-        private NodeValueResolver $nodeValueResolver
-    ) {
-    }
-
     /**
      * @return string[]
      */
     public function resolveExistingFilePaths(Expr $expr, Scope $scope, string $templateSuffix): array
     {
-        $resolvedValue = $this->nodeValueResolver->resolveWithScope($expr, $scope);
+        $exprType = $scope->getType($expr);
+
+        // unable to resolve
+        if (! $exprType instanceof ConstantStringType) {
+            return [];
+        }
+
+        $resolvedValue = $exprType->getValue();
 
         $possibleTemplateFilePaths = $this->arrayizeStrings($resolvedValue);
         if ($possibleTemplateFilePaths === []) {
@@ -69,13 +68,14 @@ final class TemplateFilePathResolver
         string $resolvedTemplateFilePath,
         string $templateSuffix
     ): string|null {
-        $symfonyTemplatesDirectory = getcwd() . '/templates';
-        if (! file_exists($symfonyTemplatesDirectory)) {
+        // @todo should be configurable?
+        $templatesDirectory = getcwd() . '/templates';
+        if (! file_exists($templatesDirectory)) {
             return null;
         }
 
         $finder = new Finder();
-        $finder->in($symfonyTemplatesDirectory)
+        $finder->in($templatesDirectory)
             ->files()
             ->name('*.' . $templateSuffix);
 

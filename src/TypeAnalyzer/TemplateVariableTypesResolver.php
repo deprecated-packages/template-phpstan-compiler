@@ -8,20 +8,12 @@ use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
 use PHPStan\Analyser\Scope;
 use PHPStan\Type\ArrayType;
+use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Generic\GenericObjectType;
-use Symplify\Astral\NodeValue\NodeValueResolver;
 use Symplify\TemplatePHPStanCompiler\ValueObject\VariableAndType;
 
-/**
- * @api
- */
 final class TemplateVariableTypesResolver
 {
-    public function __construct(
-        private NodeValueResolver $nodeValueResolver
-    ) {
-    }
-
     /**
      * @return VariableAndType[]
      */
@@ -38,11 +30,12 @@ final class TemplateVariableTypesResolver
                 continue;
             }
 
-            $keyName = $this->nodeValueResolver->resolve($arrayItem->key, $scope->getFile());
-            if (! is_string($keyName)) {
+            $arrayItemValue = $scope->getType($arrayItem->key);
+            if (! $arrayItemValue instanceof ConstantStringType) {
                 continue;
             }
 
+            $keyName = $arrayItemValue->getValue();
             $variableType = $scope->getType($arrayItem->value);
 
             // unwrap generic object type

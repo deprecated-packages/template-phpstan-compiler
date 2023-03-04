@@ -12,8 +12,6 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Foreach_;
 use PhpParser\NodeFinder;
 use PhpParser\NodeVisitorAbstract;
-use Symplify\Astral\Naming\SimpleNameResolver;
-use Symplify\Astral\ValueObject\AttributeKey;
 
 /**
  * @api
@@ -37,7 +35,6 @@ final class TemplateVariableCollectingNodeVisitor extends NodeVisitorAbstract
     public function __construct(
         private array $defaultVariableNames,
         private array $renderMethodNames,
-        private SimpleNameResolver $simpleNameResolver,
         private NodeFinder $nodeFinder,
     ) {
     }
@@ -61,7 +58,8 @@ final class TemplateVariableCollectingNodeVisitor extends NodeVisitorAbstract
             return null;
         }
 
-        if (! $this->simpleNameResolver->isNames($node, $this->renderMethodNames)) {
+        $methodName = $node->name->toString();
+        if (! in_array($methodName, $this->renderMethodNames, true)) {
             return null;
         }
 
@@ -90,10 +88,11 @@ final class TemplateVariableCollectingNodeVisitor extends NodeVisitorAbstract
         $variables = $this->nodeFinder->findInstanceOf((array) $classMethod->stmts, Variable::class);
 
         foreach ($variables as $variable) {
-            $variableName = $this->simpleNameResolver->getName($variable);
-            if ($variableName === null) {
+            if (! is_string($variable->name)) {
                 continue;
             }
+
+            $variableName = $variable->name;
 
             if ($this->isJustCreatedVariable($variable)) {
                 $this->justCreatedVariableNames[] = $variableName;
@@ -108,7 +107,7 @@ final class TemplateVariableCollectingNodeVisitor extends NodeVisitorAbstract
 
     private function isJustCreatedVariable(Variable $variable): bool
     {
-        $parent = $variable->getAttribute(AttributeKey::PARENT);
+        $parent = $variable->getAttribute('parent');
         if ($parent instanceof Assign && $parent->var === $variable) {
             return true;
         }
